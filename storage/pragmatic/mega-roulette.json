@@ -1,0 +1,19 @@
+{
+  "provedor": "pragmatic",
+  "roleta": "mega-roulette",
+  "ultimo_numero": null,
+  "cor": null,
+  "timestamp": null,
+  "historico": [],
+  "estatisticas": {
+    "vermelho": 0,
+    "preto": 0,
+    "zero": 0,
+    "total": 0
+  },
+  "percentuais": {
+    "vermelho": 0,
+    "preto": 0,
+    "zero": 0
+  }
+}
