@@ -20,6 +20,58 @@ if ($uri === '') {
 
 /*
 |--------------------------------------------------------------------------
+| GET /api/provedores
+|--------------------------------------------------------------------------
+*/
+if ($uri === 'api/provedores') {
+    $storagePath = __DIR__ . '/../storage';
+    $provedores = [];
+
+    foreach (scandir($storagePath) as $dir) {
+        if ($dir !== '.' && $dir !== '..' && is_dir($storagePath . '/' . $dir)) {
+            $provedores[] = $dir;
+        }
+    }
+
+    echo json_encode([
+        'status' => 'ok',
+        'provedores' => $provedores
+    ]);
+    exit;
+}
+
+/*
+|--------------------------------------------------------------------------
+| GET /api/provedores/{provedor}/roletas
+|--------------------------------------------------------------------------
+*/
+if (preg_match('#^api/provedores/([a-z0-9_-]+)/roletas$#', $uri, $matches)) {
+    $provedor = $matches[1];
+    $path = __DIR__ . '/../storage/' . $provedor;
+
+    if (!is_dir($path)) {
+        http_response_code(404);
+        echo json_encode(['erro' => 'Provedor não encontrado']);
+        exit;
+    }
+
+    $roletas = [];
+
+    foreach (scandir($path) as $file) {
+        if (str_ends_with($file, '.json')) {
+            $roletas[] = basename($file, '.json');
+        }
+    }
+
+    echo json_encode([
+        'provedor' => $provedor,
+        'roletas' => $roletas
+    ]);
+    exit;
+}
+
+/*
+|--------------------------------------------------------------------------
 | POST /api/roletas/{provedor}/{roleta}/push
 |--------------------------------------------------------------------------
 */
@@ -48,7 +100,7 @@ if (
 
     $numero = (int)$input['numero'];
 
-    // Definir cor
+    // Regra de cor
     if ($numero === 0) {
         $cor = 'zero';
     } else {
@@ -56,16 +108,12 @@ if (
         $cor = in_array($numero, $vermelhos) ? 'vermelho' : 'preto';
     }
 
-    // Ler dados atuais
     $dados = json_decode(file_get_contents($arquivo), true) ?? [];
 
     $historico = $dados['historico'] ?? [];
     array_unshift($historico, $numero);
-
-    // Limitar histórico a 100
     $historico = array_slice($historico, 0, 100);
 
-    // Recalcular estatísticas
     $estatisticas = ['vermelho' => 0, 'preto' => 0, 'zero' => 0];
 
     foreach ($historico as $n) {
@@ -97,10 +145,7 @@ if (
         'percentuais'   => $percentuais
     ];
 
-    file_put_contents(
-        $arquivo,
-        json_encode($dadosAtualizados, JSON_PRETTY_PRINT)
-    );
+    file_put_contents($arquivo, json_encode($dadosAtualizados, JSON_PRETTY_PRINT));
 
     echo json_encode([
         'status' => 'ok',
@@ -133,59 +178,7 @@ if (preg_match('#^api/roletas/([a-z0-9_-]+)/([a-z0-9_-]+)$#', $uri, $matches)) {
 
 /*
 |--------------------------------------------------------------------------
-| GET /api/roletas/{provedor}
-|--------------------------------------------------------------------------
-*/
-if (preg_match('#^api/roletas/([a-z0-9_-]+)$#', $uri, $matches)) {
-    $provedor = $matches[1];
-    $provedorPath = __DIR__ . '/../storage/' . $provedor;
-
-    if (!is_dir($provedorPath)) {
-        http_response_code(404);
-        echo json_encode(['erro' => 'Provedor não encontrado']);
-        exit;
-    }
-
-    $roletas = [];
-
-    foreach (scandir($provedorPath) as $file) {
-        if (str_ends_with($file, '.json')) {
-            $roletas[] = basename($file, '.json');
-        }
-    }
-
-    echo json_encode([
-        'provedor' => $provedor,
-        'roletas' => $roletas
-    ]);
-    exit;
-}
-
-/*
-|--------------------------------------------------------------------------
-| GET /api/roletas
-|--------------------------------------------------------------------------
-*/
-if ($uri === 'api/roletas') {
-    $storagePath = __DIR__ . '/../storage';
-    $provedores = [];
-
-    foreach (scandir($storagePath) as $dir) {
-        if ($dir !== '.' && $dir !== '..' && is_dir($storagePath . '/' . $dir)) {
-            $provedores[] = $dir;
-        }
-    }
-
-    echo json_encode([
-        'status' => 'ok',
-        'provedores' => $provedores
-    ]);
-    exit;
-}
-
-/*
-|--------------------------------------------------------------------------
-| FALLBACK 404
+| FALLBACK
 |--------------------------------------------------------------------------
 */
 http_response_code(404);
