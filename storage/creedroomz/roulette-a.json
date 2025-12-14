@@ -1,1 +1,22 @@
-{}
+{
+  "provedor": "creedroomz",
+  "roleta": "roulette-a",
+  "ultimo_numero": 24,
+  "cor": "vermelho",
+  "timestamp": "2025-12-13 01:32:10",
+  "historico": [
+    24, 10, 0, 13, 3, 29, 19, 9, 17, 32,
+    36, 0, 8, 4, 0, 16, 14, 20, 13, 34
+  ],
+  "estatisticas": {
+    "vermelho": 11,
+    "preto": 7,
+    "zero": 2,
+    "total": 20
+  },
+  "percentuais": {
+    "vermelho": 55,
+    "preto": 35,
+    "zero": 10
+  }
+}
